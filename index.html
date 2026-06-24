@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Milo's Magical Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Oswald:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet" />
+  <style>
+    /* =========================================================================
+       CSS VARIABLES — 1988 dinner theater aesthetic
+       ========================================================================= */
+    :root {
+      --ink:       #04030a;
+      --felt:      #1c1508;
+      --wood:      #1e1409;
+      --paper:     #3d2e18;
+      --paper2:    #4a3820;
+      --aged:      #5c4828;
+      --border:    #6b5030;
+      --border-hi: #9a7848;
+      --border-lo: #3a2810;
+      --text:      #f0e0b8;
+      --text2:     #c8a870;
+      --text3:     #8a6840;
+      --text4:     #5a4028;
+      --gold:      #e8b84a;
+      --gold2:     #c89830;
+      --gold-glow: rgba(232,184,74,0.4);
+      --red:       #8b1a1a;
+      --red2:      #b02020;
+      --red-warm:  #d4401a;
+      --bulb:      #f5d060;
+      --danger:    #c0381a;
+      --warn:      #d4881a;
+      --velvet:    #3a0a18;
+      --velvet2:   #4a1020;
+      --r-sm: 3px;
+      --r-md: 5px;
+    }
+
+    /* =========================================================================
+       RESET & BASE
+       ========================================================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--felt);
+      color: var(--text);
+      font-family: 'Special Elite', serif;
+      font-size: 13px;
+      overflow: hidden;
+    }
+
+    /* =========================================================================
+       ANIMATIONS
+       ========================================================================= */
+    @keyframes flicker    { 0%,100%{opacity:1;} 92%{opacity:1;} 93%{opacity:.7;} 94%{opacity:1;} 97%{opacity:.85;} 98%{opacity:1;} }
+    @keyframes bulb-pulse { 0%,100%{box-shadow:0 0 6px 2px rgba(245,208,96,.5);} 50%{box-shadow:0 0 10px 4px rgba(245,208,96,.3);} }
+    @keyframes blink      { 0%,49%{opacity:1;} 50%,100%{opacity:.4;} }
+    @keyframes hatch-shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-3px);} 75%{transform:translateX(3px);} }
+    @keyframes danger-blink{ 0%,100%{opacity:1;} 50%{opacity:.15;} }
+    @keyframes js-shake   { 0%,100%{transform:translate(0,0) rotate(0deg);} 20%{transform:translate(-5px,3px) rotate(-2deg);} 50%{transform:translate(4px,-4px) rotate(1.5deg);} 80%{transform:translate(-3px,4px) rotate(-1deg);} }
+    @keyframes fade-in    { from{opacity:0;transform:translateY(6px);} to{opacity:1;transform:translateY(0);} }
+
+    /* =========================================================================
+       LAYOUT
+       ========================================================================= */
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* =========================================================================
+       TITLE SCREEN
+       ========================================================================= */
+    #title-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      z-index: 50;
+      background:
+        radial-gradient(ellipse 600px 500px at 50% 40%, rgba(245,200,80,.08), transparent 65%),
+        var(--felt);
+      animation: fade-in 0.6s ease;
+    }
+
+    .title-marquee {
+      font-family: 'VT323', monospace;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: var(--gold2);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      animation: blink 1.4s infinite;
+    }
+
+    .title-sign {
+      background: var(--red);
+      border: 3px solid var(--gold);
+      border-radius: var(--r-sm);
+      padding: 18px 32px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 0 6px var(--red), 0 0 0 8px var(--gold2), 0 4px 28px rgba(0,0,0,.75);
+      margin-bottom: 18px;
+    }
+    .title-sign::before, .title-sign::after {
+      content: '★';
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      color: var(--gold);
+      font-size: 20px;
+    }
+    .title-sign::before { left: -15px; }
+    .title-sign::after  { right: -15px; }
+
+    .title-sign-pre  { font-family: 'Oswald', sans-serif; font-size: 10px; letter-spacing: 4px; color: var(--gold2); margin-bottom: 5px; text-transform: uppercase; }
+    .title-sign-main { font-family: 'Oswald', sans-serif; font-size: 32px; font-weight: 700; color: var(--bulb); line-height: 1; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 24px var(--gold-glow); }
+    .title-sign-sub  { font-family: 'Special Elite', serif; font-size: 12px; color: var(--gold2); margin-top: 5px; letter-spacing: 1px; }
+
+    .bulb-row { display: flex; gap: 10px; margin-bottom: 16px; }
+    .bulb {
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--bulb);
+      animation: bulb-pulse 1.8s infinite;
+      border: 1px solid rgba(245,208,96,.3);
+    }
+    .bulb:nth-child(2){animation-delay:.3s}
+    .bulb:nth-child(3){animation-delay:.6s}
+    .bulb:nth-child(4){animation-delay:.9s}
+    .bulb:nth-child(5){animation-delay:1.2s}
+    .bulb:nth-child(6){animation-delay:1.5s}
+
+    .night-row { display: flex; gap: 8px; margin-bottom: 16px; }
+
+    .night-btn {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px; font-weight: 600; letter-spacing: 1px;
+      padding: 8px 16px; border-radius: var(--r-sm);
+      cursor: pointer; text-transform: uppercase;
+      background: var(--paper); border: 1.5px solid var(--border); color: var(--text3);
+      transition: all .15s;
+    }
+    .night-btn:hover, .night-btn.sel {
+      background: var(--red); border-color: var(--gold); color: var(--bulb);
+      box-shadow: 0 0 10px rgba(139,26,26,.5);
+    }
+
+    .start-btn {
+      font-family: 'Oswald', sans-serif;
+      font-size: 15px; font-weight: 700; letter-spacing: 2px;
+      padding: 12px 34px; border-radius: var(--r-sm);
+      cursor: pointer; text-transform: uppercase;
+      background: var(--red); border: 2px solid var(--gold); color: var(--bulb);
+      box-shadow: 0 0 18px rgba(139,26,26,.6), 0 2px 8px rgba(0,0,0,.5);
+      transition: all .15s;
+    }
+    .start-btn:hover { background: var(--red2); box-shadow: 0 0 28px rgba(176,32,32,.7); }
+
+    .title-tip  { font-size: 10px; color: var(--text4); margin-top: 10px; letter-spacing: 1px; }
+    .title-keys { font-family: 'VT323', monospace; font-size: 12px; color: var(--text4); margin-top: 5px; letter-spacing: 1px; }
+
+    /* =========================================================================
+       GAME WRAPPER
+       ========================================================================= */
+    #game {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+    #game.active { display: flex; }
+
+    /* =========================================================================
+       TOP BAR
+       ========================================================================= */
+    #topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 14px;
+      background: linear-gradient(180deg, var(--wood), var(--ink));
+      border-bottom: 2px solid var(--border);
+      flex-shrink: 0;
+      position: relative;
+    }
+    #topbar::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(90deg, transparent, transparent 3px, rgba(0,0,0,.1) 3px, rgba(0,0,0,.1) 4px);
+      pointer-events: none;
+    }
+
+    .tb-logo  { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--gold-glow); }
+    .tb-badge { font-family: 'Special Elite', serif; font-size: 10px; color: var(--text3); background: var(--paper); border: 1px solid var(--border-lo); padding: 2px 8px; border-radius: 2px; letter-spacing: 1px; }
+    .tb-left  { display: flex; align-items: center; gap: 10px; }
+    .tb-right { display: flex; align-items: center; gap: 12px; }
+
+    #power-wrap { display: flex; align-items: center; gap: 7px; width: 160px; }
+    .power-lbl  { font-family: 'Special Elite', serif; font-size: 9px; color: var(--text4); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+    #power-bar  { flex: 1; height: 6px; background: var(--ink); border-radius: 2px; overflow: hidden; border: 1px solid var(--border-lo); }
+    #power-fill { height: 100%; border-radius: 1px; transition: width .3s, background .3s; background: var(--gold); }
+    #power-pct  { font-family: 'VT323', monospace; font-size: 14px; color: var(--gold); min-width: 34px; text-align: right; }
+    #clock      { font-family: 'VT323', monospace; font-size: 23px; color: var(--bulb); text-shadow: 0 0 10px var(--gold-glow); animation: flicker 8s infinite; min-width: 54px; text-align: right; }
+
+    /* =========================================================================
+       MAIN CONTENT AREA
+       ========================================================================= */
+    #main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* =========================================================================
+       VIEW PANE (scenes)
+       ========================================================================= */
+    #view-pane {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--ink);
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: fade-in 0.2s ease;
+    }
+    .scene.active { display: flex; }
+
+    .scene-label {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Special Elite', serif;
+      font-size: 9px;
+      color: var(--text4);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* -----------------------------------------------------------------------
+       SCENE: FRONT — Stage Window
+       ----------------------------------------------------------------------- */
+    #sc-front { background: linear-gradient(180deg, #0e0b06, #141008); }
+
+    #stage-window {
+      width: 310px;
+      height: 210px;
+      position: relative;
+      border: 3px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      background: #08060a;
+      box-shadow: 0 0 0 2px var(--border-lo), 0 0 32px rgba(0,0,0,.8), inset 0 0 40px rgba(0,0,0,.6);
+    }
+
+    .curtain { position: absolute; top: 0; bottom: 0; width: 48px; z-index: 3; }
+    .curtain.l { left: 0;  background: linear-gradient(90deg,  var(--velvet), var(--velvet2)); border-right: 2px solid #6a1028; }
+    .curtain.r { right: 0; background: linear-gradient(270deg, var(--velvet), var(--velvet2)); border-left: 2px solid #6a1028; }
+    .curtain-fold { position: absolute; top: 0; bottom: 0; width: 6px; background: rgba(0,0,0,.25); }
+    .curtain-fold.a { left: 12px; }
+    .curtain-fold.b { left: 24px; }
+    .curtain-fold.c { left: 36px; }
+
+    #rafters {
+      position: absolute; top: 0; left: 48px; right: 48px; height: 26px;
+      background: linear-gradient(180deg, #100c06, #140e08);
+      border-bottom: 1px solid var(--border-lo);
+      display: flex; align-items: center; padding: 0 8px; gap: 4px; z-index: 3;
+    }
+    .rafters-lbl { font-family: 'Special Elite', serif; font-size: 8px; color: var(--text4); letter-spacing: 1px; text-transform: uppercase; }
+
+    #spotlight {
+      position: absolute; top: 26px; left: 50%; transform: translateX(-50%);
+      width: 100px; height: 160px;
+      background: radial-gradient(ellipse at top, rgba(245,220,120,.1), transparent 70%);
+      pointer-events: none; z-index: 1;
+    }
+
+    #stage-area {
+      position: absolute; bottom: 28px; left: 48px; right: 48px; top: 26px;
+      display: flex; align-items: center; justify-content: center; z-index: 2;
+    }
+    .stage-center { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
+    #stage-floor {
+      position: absolute; bottom: 0; left: 48px; right: 48px; height: 28px;
+      background: linear-gradient(180deg, #100c06, #1a1208);
+      border-top: 1px solid var(--border-lo); z-index: 3;
+      background-image: repeating-linear-gradient(90deg, transparent, transparent 18px, rgba(0,0,0,.15) 18px, rgba(0,0,0,.16) 19px);
+    }
+
+    .window-vignette {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0,0,0,.5) 100%);
+      z-index: 5; pointer-events: none;
+    }
+
+    /* -----------------------------------------------------------------------
+       SCENE: LEFT — Hallway
+       ----------------------------------------------------------------------- */
+    #sc-left { background: linear-gradient(180deg, #080604, #0e0a06); }
+
+    #hall-wrap { width: 100%; height: 100%; position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 10px; }
+    .hall-bg   { position: absolute; inset: 0; background: linear-gradient(180deg, #060402, #0c0806); }
+    .hall-wallpaper {
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(80,50,20,.08) 28px, rgba(80,50,20,.08) 29px),
+        repeating-linear-gradient(180deg, transparent, transparent 28px, rgba(80,50,20,.06) 28px, rgba(80,50,20,.06) 29px);
+    }
+    .hall-floor {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 50px;
+      background: linear-gradient(180deg, #18100a, #201608);
+      border-top: 2px solid var(--border-lo);
+      background-image: repeating-linear-gradient(90deg, transparent, transparent 22px, rgba(0,0,0,.2) 22px, rgba(0,0,0,.21) 23px);
+    }
+    .hall-frame {
+      position: absolute; top: 18px; left: calc(50% - 62px); right: calc(50% - 62px); bottom: 0;
+      border-top: 2px solid var(--border);
+      border-left: 2px solid var(--border);
+      border-right: 2px solid var(--border);
+      border-radius: 4px 4px 0 0;
+    }
+    .hall-frame2 {
+      position: absolute; top: 32px; left: calc(50% - 50px); right: calc(50% - 50px); bottom: 0;
+      border-top: 1px solid var(--border-lo);
+      border-left: 1px solid var(--border-lo);
+      border-right: 1px solid var(--border-lo);
+      opacity: .5;
+    }
+    .hall-bulb {
+      position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--bulb);
+      box-shadow: 0 0 12px 4px rgba(245,208,96,.3);
+      animation: bulb-pulse 2.5s infinite;
+    }
+    #door-fill {
+      position: absolute; top: 18px; left: calc(50% - 62px); right: calc(50% - 62px); bottom: 0;
+      border-radius: 4px 4px 0 0;
+      background: rgba(20,50,20,.45);
+      border: 1.5px solid #4a8040;
+      opacity: 0; transition: opacity .2s; z-index: 4;
+    }
+    #door-label {
+      position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+      font-family: 'Special Elite', serif; font-size: 9px;
+      color: var(--text4); text-transform: uppercase; letter-spacing: 1px;
+      white-space: nowrap; z-index: 5; transition: color .2s;
+    }
+    #hall-anim { position: absolute; left: 50%; transform: translateX(-50%); opacity: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; }
+
+    /* -----------------------------------------------------------------------
+       SCENE: RIGHT — Maintenance Panel
+       ----------------------------------------------------------------------- */
+    #sc-right { background: linear-gradient(180deg, #0a0806, #0e0c08); }
+
+    #panel-box { width: 265px; display: flex; flex-direction: column; gap: 8px; }
+
+    .p-card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 10px 13px;
+      position: relative;
+    }
+    .p-card::before {
+      content: ''; position: absolute; inset: 3px;
+      border: 1px solid var(--border-lo); border-radius: 2px; pointer-events: none;
+    }
+    .p-card-title {
+      font-family: 'Oswald', sans-serif; font-size: 9px; font-weight: 600;
+      color: var(--text3); letter-spacing: 3px; text-transform: uppercase;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+    }
+    .p-card-title::before { content: '◆'; color: var(--gold2); font-size: 7px; }
+    .p-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border-lo); }
+    .p-row:last-child { border-bottom: none; }
+    .p-key  { font-size: 11px; color: var(--text2); }
+    .p-val  { display: flex; align-items: center; gap: 5px; font-family: 'Special Elite', serif; font-size: 11px; color: var(--text); }
+    .pdot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .d-on     { background: var(--gold); box-shadow: 0 0 5px var(--gold-glow); }
+    .d-warn   { background: var(--warn); }
+    .d-off    { background: var(--border); }
+    .d-danger { background: var(--danger); animation: danger-blink .5s infinite; }
+
+    /* -----------------------------------------------------------------------
+       SCENE: BACK — Hatch
+       ----------------------------------------------------------------------- */
+    #sc-back { background: linear-gradient(180deg, #07060a, #0a0810); }
+
+    #hatch-container { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+    #hatch-door {
+      width: 188px; height: 138px;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 14px, rgba(0,0,0,.12) 14px, rgba(0,0,0,.12) 15px),
+        linear-gradient(180deg, #1e1828, #160f20);
+      border: 2px solid var(--border);
+      border-radius: 3px;
+      position: relative;
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px;
+      transition: border-color .2s, box-shadow .2s;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,.5);
+    }
+    .hatch-seam { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; background: rgba(0,0,0,.4); transform: translateX(-50%); }
+    .hatch-bolts { position: absolute; inset: 7px; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
+    .hatch-bolt-row { display: flex; justify-content: space-between; }
+    .hatch-bolt { width: 8px; height: 8px; border-radius: 50%; background: var(--aged); border: 1px solid var(--border-hi); box-shadow: inset 0 1px 2px rgba(255,255,255,.1); }
+    #hatch-gail { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); z-index: 3; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity .3s; }
+    #hatch-text { font-family: 'Special Elite', serif; font-size: 9px; color: var(--text4); z-index: 2; letter-spacing: 1px; text-transform: uppercase; }
+    .hatch-handle { width: 44px; height: 7px; background: linear-gradient(180deg, var(--aged), var(--border)); border: 1px solid var(--border-hi); border-radius: 2px; z-index: 2; }
+    #hatch-status { font-family: 'Special Elite', serif; font-size: 10px; font-weight: 700; color: var(--text4); z-index: 2; margin-top: 2px; transition: color .2s; }
+    #hatch-held-label {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 700;
+      letter-spacing: 2px; color: #6aaa50; text-transform: uppercase;
+      opacity: 0; transition: opacity .2s; white-space: nowrap;
+      text-shadow: 0 0 8px rgba(100,200,80,.5);
+    }
+    .hatch-hint { font-family: 'Special Elite', serif; font-size: 9px; color: var(--text4); text-align: center; max-width: 185px; line-height: 1.6; }
+
+    /* =========================================================================
+       NAV ARROWS
+       ========================================================================= */
+    .nav-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 52px;
+      background: rgba(18,12,6,.85);
+      border: 1px solid var(--border); color: var(--text3);
+      font-size: 20px; cursor: pointer;
+      border-radius: var(--r-sm); z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-btn:hover { background: rgba(40,28,14,.95); color: var(--gold); border-color: var(--border-hi); }
+    #nav-l { left: 4px; }
+    #nav-r { right: 4px; }
+
+    /* =========================================================================
+       CAMERA OVERLAY
+       ========================================================================= */
+    #cam-overlay {
+      position: absolute; inset: 0;
+      background: rgba(8,6,4,.97);
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 20; gap: 9px;
+    }
+    #cam-overlay.open { display: flex; }
+
+    #cam-tablet {
+      width: 88%; max-width: 320px;
+      background: var(--paper);
+      border: 2px solid var(--border);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      box-shadow: 0 0 0 4px var(--ink), 0 0 0 6px var(--border-lo), 0 10px 34px rgba(0,0,0,.85);
+    }
+    #cam-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 11px;
+      background: linear-gradient(180deg, var(--wood), var(--paper));
+      border-bottom: 2px solid var(--border-lo);
+    }
+    .cam-logo   { font-family: 'Oswald', sans-serif; font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; }
+    #cam-clock  { font-family: 'VT323', monospace; font-size: 14px; color: var(--text3); }
+
+    #cam-screen {
+      aspect-ratio: 4 / 3;
+      background: #060402;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .cam-scanlines {
+      position: absolute; inset: 0; opacity: .06;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,.08) 2px, rgba(255,255,255,.08) 3px);
+      pointer-events: none; z-index: 5;
+    }
+    .cam-vignette {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 50%, rgba(0,0,0,.6) 100%);
+      z-index: 4; pointer-events: none;
+    }
+    #cam-body { position: relative; z-index: 3; text-align: center; padding: 14px; }
+
+    #cam-tabs {
+      display: flex; gap: 4px; padding: 7px;
+      background: linear-gradient(180deg, var(--paper), var(--wood));
+      border-top: 1px solid var(--border-lo);
+      flex-wrap: wrap; justify-content: center;
+    }
+    .cam-tab {
+      font-family: 'Special Elite', serif; font-size: 9px;
+      padding: 5px 10px; border-radius: 2px; cursor: pointer;
+      background: var(--ink); border: 1px solid var(--border-lo); color: var(--text4);
+      transition: all .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .cam-tab.sel   { background: var(--red); border-color: var(--gold2); color: var(--bulb); }
+    .cam-tab:hover:not(.sel) { border-color: var(--border); color: var(--text2); }
+
+    /* =========================================================================
+       SIDE PANEL
+       ========================================================================= */
+    #side-panel {
+      width: 175px; flex-shrink: 0;
+      background: linear-gradient(180deg, var(--wood), var(--ink));
+      border-left: 2px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .sp-block { padding: 10px 12px; border-bottom: 1px solid var(--border-lo); }
+    .sp-title {
+      font-family: 'Oswald', sans-serif; font-size: 9px; font-weight: 600;
+      color: var(--text3); letter-spacing: 3px; text-transform: uppercase;
+      margin-bottom: 7px; display: flex; align-items: center; gap: 4px;
+    }
+    .sp-title::before { content: '◆'; color: var(--gold2); font-size: 7px; }
+
+    .anim-row  { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; }
+    .anim-name { font-size: 10px; color: var(--text2); }
+    .anim-loc  { font-family: 'Special Elite', serif; font-size: 9px; font-weight: 700; }
+    .loc-safe  { color: var(--text4); }
+    .loc-move  { color: var(--warn); }
+    .loc-close { color: var(--danger); }
+
+    .counter-item { font-size: 9px; color: var(--text4); line-height: 2.0; }
+
+    .kb-row  { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
+    .kb-key  { font-family: 'VT323', monospace; font-size: 12px; background: var(--paper); border: 1px solid var(--border); color: var(--gold2); padding: 0 5px; border-radius: 2px; min-width: 22px; text-align: center; }
+    .kb-desc { font-size: 9px; color: var(--text4); }
+
+    /* =========================================================================
+       BOTTOM BAR
+       ========================================================================= */
+    #bottom-bar {
+      background: linear-gradient(180deg, var(--ink), var(--wood));
+      border-top: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+    #controls { display: flex; gap: 5px; padding: 7px 10px; flex-wrap: wrap; align-items: center; }
+
+    .ctrl-btn {
+      font-family: 'Special Elite', serif; font-size: 10px; letter-spacing: .5px;
+      padding: 6px 11px; border-radius: var(--r-sm); cursor: pointer;
+      background: var(--paper); border: 1.5px solid var(--border); color: var(--text2);
+      transition: all .12s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      display: flex; align-items: center; gap: 4px;
+      user-select: none;
+    }
+    .ctrl-btn:hover              { background: var(--paper2); border-color: var(--border-hi); color: var(--text); }
+    .ctrl-btn.on                 { background: var(--red); border-color: var(--gold); color: var(--bulb); box-shadow: 0 0 10px rgba(139,26,26,.5); }
+    .ctrl-btn.door-btn.on        { background: rgba(20,60,20,.5); border-color: #5a9040; color: #8ad060; }
+    .ctrl-btn.hatch-btn.on       { background: rgba(80,20,10,.5); border-color: var(--red2); color: #f08060; }
+
+    .kb-badge { font-family: 'VT323', monospace; font-size: 10px; background: rgba(0,0,0,.3); border: 1px solid var(--border-lo); color: var(--text4); padding: 0 4px; border-radius: 2px; }
+    #view-label { margin-left: auto; font-family: 'Special Elite', serif; font-size: 9px; color: var(--text4); letter-spacing: 1px; }
+
+    #logbar  { padding: 4px 10px; min-height: 26px; border-top: 1px solid var(--border-lo); }
+    #log-msg { font-family: 'Special Elite', serif; font-size: 9px; color: var(--text4); letter-spacing: .5px; }
+    #log-msg.warn   { color: var(--warn); }
+    #log-msg.danger { color: var(--danger); }
+
+    /* =========================================================================
+       JUMPSCARE OVERLAY
+       ========================================================================= */
+    #js-overlay {
+      position: absolute; inset: 0;
+      display: none;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px;
+      z-index: 100;
+      background: #08020a;
+    }
+    #js-overlay.active { display: flex; }
+    .js-bar   { width: 80%; height: 2px; background: linear-gradient(90deg, transparent, var(--gold2), transparent); }
+    #js-icon  { font-size: 80px; animation: js-shake .09s infinite; }
+    #js-line  { font-family: 'Special Elite', serif; font-size: 15px; color: var(--text); text-align: center; max-width: 260px; padding: 0 16px; text-shadow: 0 0 18px rgba(232,184,74,.4); font-style: italic; }
+
+    /* =========================================================================
+       END SCREEN
+       ========================================================================= */
+    #end-screen {
+      position: absolute; inset: 0;
+      display: none;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 10px;
+      z-index: 90;
+      background: var(--felt);
+      text-align: center; padding: 24px;
+      animation: fade-in 0.4s ease;
+    }
+    #end-screen.active { display: flex; }
+
+    .end-sign  { background: var(--red); border: 2px solid var(--gold); padding: 16px 26px; border-radius: var(--r-sm); box-shadow: 0 0 0 4px var(--red), 0 0 0 6px var(--gold2); }
+    .end-title { font-family: 'Oswald', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+    .end-sub   { font-family: 'Special Elite', serif; font-size: 12px; color: var(--text2); max-width: 240px; margin-top: 4px; }
+    .end-note  { font-family: 'Special Elite', serif; font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+    .end-btn {
+      font-family: 'Special Elite', serif; font-size: 12px; letter-spacing: 1px;
+      padding: 9px 22px; border-radius: var(--r-sm); cursor: pointer;
+      background: var(--paper); border: 1.5px solid var(--border-hi); color: var(--text);
+      transition: all .15s; margin-top: 6px;
+    }
+    .end-btn:hover { background: var(--red); border-color: var(--gold); color: var(--bulb); }
+
+    /* =========================================================================
+       ANIMATRONIC TOKENS (shared style)
+       ========================================================================= */
+    .tok { transition: opacity .35s; }
+  </style>
+</head>
+
+<body>
+<div id="app">
+
+  <!-- =========================================================================
+       TITLE SCREEN
+       ========================================================================= -->
+  <div id="title-screen">
+    <div class="title-marquee">★ Now Showing ★ Every Night ★ Since 1988 ★</div>
+    <div class="title-sign">
+      <div class="title-sign-pre">Milo's Magical Dinner &amp; Show presents</div>
+      <div class="title-sign-main">MILO'S<br>MAGICAL DEMO</div>
+      <div class="title-sign-sub">A Night Maintenance Experience</div>
+    </div>
+    <div class="bulb-row">
+      <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+      <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+    </div>
+    <div class="night-row">
+      <button class="night-btn sel" data-night="1" onclick="UI.selectNight(1, this)">Night 1</button>
+      <button class="night-btn"    data-night="2" onclick="UI.selectNight(2, this)">Night 2</button>
+      <button class="night-btn"    data-night="3" onclick="UI.selectNight(3, this)">Night 3</button>
+    </div>
+    <button class="start-btn" onclick="UI.startGame()">Begin Night Shift</button>
+    <div class="title-tip">← → to look around your booth</div>
+    <div class="title-keys">C = Cameras &nbsp;|&nbsp; L = Light &nbsp;|&nbsp; D = Hold Door &nbsp;|&nbsp; H = Hold Hatch</div>
+  </div>
+
+  <!-- =========================================================================
+       GAME
+       ========================================================================= -->
+  <div id="game">
+
+    <!-- TOP BAR -->
+    <div id="topbar">
+      <div class="tb-left">
+        <div class="tb-logo">Milo's</div>
+        <div class="tb-badge" id="night-label">Night 1</div>
+        <div id="power-wrap">
+          <div class="power-lbl">Power</div>
+          <div id="power-bar"><div id="power-fill"></div></div>
+          <div id="power-pct">100%</div>
+        </div>
+      </div>
+      <div class="tb-right">
+        <div id="clock">12 AM</div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div id="main">
+
+      <!-- VIEW PANE -->
+      <div id="view-pane">
+
+        <!-- FRONT: stage window -->
+        <div class="scene active" id="sc-front">
+          <span class="scene-label">Front — Stage Window</span>
+          <div id="stage-window">
+            <div class="curtain l">
+              <div class="curtain-fold a"></div>
+              <div class="curtain-fold b"></div>
+              <div class="curtain-fold c"></div>
+            </div>
+            <div class="curtain r">
+              <div class="curtain-fold a"></div>
+              <div class="curtain-fold b"></div>
+              <div class="curtain-fold c"></div>
+            </div>
+            <div id="rafters">
+              <span class="rafters-lbl">Rafters</span>
+              <span id="tok-giz-raft" class="tok" style="font-size:18px;opacity:0;margin-left:4px;"></span>
+            </div>
+            <div id="spotlight"></div>
+            <div id="stage-area">
+              <div class="stage-center">
+                <span id="tok-milo-stage" class="tok" style="font-size:34px;opacity:0;"></span>
+                <span style="font-family:'Special Elite',serif;font-size:8px;color:#2a1e10;">main stage</span>
+                <span id="tok-ant-stage" class="tok" style="font-size:20px;opacity:0;"></span>
+              </div>
+            </div>
+            <span id="tok-giz-win" class="tok" style="position:absolute;bottom:30px;right:52px;font-size:26px;opacity:0;z-index:3;"></span>
+            <span id="tok-milo-win" class="tok" style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:30px;opacity:0;z-index:3;"></span>
+            <div id="stage-floor"></div>
+            <div class="window-vignette"></div>
+          </div>
+        </div>
+
+        <!-- LEFT: hallway -->
+        <div class="scene" id="sc-left">
+          <span class="scene-label">Left — Sloped Hallway</span>
+          <div id="hall-wrap">
+            <div class="hall-bg"></div>
+            <div class="hall-wallpaper"></div>
+            <div class="hall-floor"></div>
+            <div class="hall-frame"></div>
+            <div class="hall-frame2"></div>
+            <div class="hall-bulb"></div>
+            <div id="door-fill"></div>
+            <div id="door-label">— door open —</div>
+            <div id="hall-anim"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: maintenance panel -->
+        <div class="scene" id="sc-right">
+          <span class="scene-label">Right — Maintenance Panel</span>
+          <div id="panel-box">
+            <div class="p-card">
+              <div class="p-card-title">Systems</div>
+              <div class="p-row"><span class="p-key">Power</span>     <span class="p-val" id="mp-pwr">100%<span class="pdot d-on"></span></span></div>
+              <div class="p-row"><span class="p-key">Booth light</span><span class="p-val" id="mp-lgt">OFF<span class="pdot d-off"></span></span></div>
+              <div class="p-row"><span class="p-key">Hall door</span>  <span class="p-val" id="mp-door">Open<span class="pdot d-off"></span></span></div>
+            </div>
+            <div class="p-card">
+              <div class="p-card-title">Threats</div>
+              <div class="p-row"><span class="p-key">Left hall</span><span class="p-val" id="mp-hall">Clear<span class="pdot d-off"></span></span></div>
+              <div class="p-row"><span class="p-key">Hatch</span>    <span class="p-val" id="mp-htch">Closed<span class="pdot d-off"></span></span></div>
+              <div class="p-row"><span class="p-key">Rafters</span>  <span class="p-val" id="mp-raft">Clear<span class="pdot d-off"></span></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BACK: hatch -->
+        <div class="scene" id="sc-back">
+          <span class="scene-label">Behind You — Closet Hatch</span>
+          <div id="hatch-container">
+            <div id="hatch-door">
+              <div class="hatch-seam"></div>
+              <div class="hatch-bolts">
+                <div class="hatch-bolt-row"><div class="hatch-bolt"></div><div class="hatch-bolt"></div></div>
+                <div class="hatch-bolt-row"><div class="hatch-bolt"></div><div class="hatch-bolt"></div></div>
+              </div>
+              <div id="hatch-gail"></div>
+              <div id="hatch-text">ladder hatch</div>
+              <div class="hatch-handle"></div>
+              <div id="hatch-status">closed</div>
+              <div id="hatch-held-label">◆ HELD SHUT ◆</div>
+            </div>
+            <div class="hatch-hint">Hold H or the button to keep Gail out.</div>
+          </div>
+        </div>
+
+        <!-- NAV ARROWS -->
+        <button class="nav-btn" id="nav-l" onclick="Engine.turnLeft()"  aria-label="Look left">&#8249;</button>
+        <button class="nav-btn" id="nav-r" onclick="Engine.turnRight()" aria-label="Look right">&#8250;</button>
+
+        <!-- CAMERA OVERLAY -->
+        <div id="cam-overlay">
+          <div id="cam-tablet">
+            <div id="cam-header">
+              <div class="cam-logo">◆ Venue Cameras</div>
+              <div id="cam-clock">12 AM</div>
+            </div>
+            <div id="cam-screen">
+              <div class="cam-scanlines"></div>
+              <div class="cam-vignette"></div>
+              <div id="cam-body"></div>
+            </div>
+            <div id="cam-tabs">
+              <button class="cam-tab sel" id="ct-stage"  onclick="UI.selCam('stage')">Stage <span class="kb-badge">1</span></button>
+              <button class="cam-tab"     id="ct-back"   onclick="UI.selCam('back')">Backstage <span class="kb-badge">2</span></button>
+              <button class="cam-tab"     id="ct-alcove" onclick="UI.selCam('alcove')">Alcove <span class="kb-badge">3</span></button>
+              <button class="cam-tab"     id="ct-raft"   onclick="UI.selCam('raft')">Rafters <span class="kb-badge">4</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- JUMPSCARE -->
+        <div id="js-overlay">
+          <div class="js-bar"></div>
+          <div id="js-icon"></div>
+          <div id="js-line"></div>
+          <div class="js-bar"></div>
+        </div>
+
+        <!-- END SCREEN -->
+        <div id="end-screen"></div>
+
+      </div><!-- /view-pane -->
+
+      <!-- SIDE PANEL -->
+      <div id="side-panel">
+        <div class="sp-block">
+          <div class="sp-title">Roster</div>
+          <div class="anim-row"><span class="anim-name">Milo</span>    <span class="anim-loc loc-safe" id="sp-milo">Stage</span></div>
+          <div class="anim-row"><span class="anim-name">Riley</span>   <span class="anim-loc loc-safe" id="sp-riley">Backstage</span></div>
+          <div class="anim-row"><span class="anim-name">Gail</span>    <span class="anim-loc loc-safe" id="sp-gail">Alcove</span></div>
+          <div class="anim-row"><span class="anim-name">Gizelle</span> <span class="anim-loc loc-safe" id="sp-gizelle">Seating</span></div>
+          <div class="anim-row"><span class="anim-name">Anthony</span> <span class="anim-loc loc-safe" id="sp-anthony">Stage</span></div>
+        </div>
+        <div class="sp-block">
+          <div class="sp-title">Counters</div>
+          <div class="counter-item">🎩 Milo — close cameras</div>
+          <div class="counter-item">🐰 Riley — hold door</div>
+          <div class="counter-item">🦎 Gail — hold hatch</div>
+          <div class="counter-item">🦌 Gizelle — rafters cam</div>
+          <div class="counter-item">🦌 Anthony — hold door</div>
+        </div>
+        <div class="sp-block">
+          <div class="sp-title">Keybinds</div>
+          <div class="kb-row"><span class="kb-key">←→</span>  <span class="kb-desc">Look around</span></div>
+          <div class="kb-row"><span class="kb-key">C</span>   <span class="kb-desc">Cameras</span></div>
+          <div class="kb-row"><span class="kb-key">L</span>   <span class="kb-desc">Booth light</span></div>
+          <div class="kb-row"><span class="kb-key">D</span>   <span class="kb-desc">Hold door</span></div>
+          <div class="kb-row"><span class="kb-key">H</span>   <span class="kb-desc">Hold hatch</span></div>
+          <div class="kb-row"><span class="kb-key">1–4</span> <span class="kb-desc">Camera tabs</span></div>
+        </div>
+      </div>
+
+    </div><!-- /main -->
+
+    <!-- BOTTOM BAR -->
+    <div id="bottom-bar">
+      <div id="controls">
+        <button class="ctrl-btn" id="btn-cam"
+          onclick="Engine.toggleCam()">
+          📷 Cameras <span class="kb-badge">C</span>
+        </button>
+        <button class="ctrl-btn" id="btn-light"
+          onclick="Engine.toggleLight()">
+          💡 Light <span class="kb-badge">L</span>
+        </button>
+        <button class="ctrl-btn door-btn" id="btn-door">
+          🚪 Hold Door <span class="kb-badge">D</span>
+        </button>
+        <button class="ctrl-btn hatch-btn" id="btn-hatch">
+          🔒 Hold Hatch <span class="kb-badge">H</span>
+        </button>
+        <span id="view-label">Looking: <span id="view-dir">Front</span></span>
+      </div>
+      <div id="logbar"><div id="log-msg">Awaiting night shift...</div></div>
+    </div>
+
+  </div><!-- /game -->
+</div><!-- /app -->
+
+<!-- =========================================================================
+     SCRIPTS
+     ========================================================================= -->
+<script src="game-data.js"></script>
+<script src="audio.js"></script>
+<script src="engine.js"></script>
+<script>
+// =============================================================================
+// UI — rendering layer, wires engine events to DOM
+// =============================================================================
+const UI = (() => {
+
+  const DIRS = ['sc-front', 'sc-left', 'sc-right', 'sc-back'];
+  const DIR_NAMES = ['Front', 'Left hall', 'Panel', 'Hatch'];
+  let selectedNight = 1;
+  const keysHeld = { d: false, h: false };
+
+  // ---------------------------------------------------------------------------
+  // NIGHT SELECT / START
+  // ---------------------------------------------------------------------------
+  function selectNight(n, el) {
+    selectedNight = n;
+    document.querySelectorAll('.night-btn').forEach(b => b.classList.remove('sel'));
+    el.classList.add('sel');
+  }
+
+  function startGame() {
+    AudioEngine.init();
+    document.getElementById('title-screen').style.display = 'none';
+    document.getElementById('game').classList.add('active');
+    document.getElementById('night-label').textContent = 'Night ' + selectedNight;
+    // Reset scenes
+    DIRS.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active', i === 0);
+    });
+    document.getElementById('view-dir').textContent = 'Front';
+    ['btn-cam','btn-light','btn-door','btn-hatch'].forEach(id => document.getElementById(id).classList.remove('on'));
+    document.getElementById('cam-overlay').classList.remove('open');
+    document.getElementById('end-screen').classList.remove('active');
+    document.getElementById('js-overlay').classList.remove('active');
+    keysHeld.d = false; keysHeld.h = false;
+    setLog('Night ' + selectedNight + ' begins. The anti-rust protocol activates...', '');
+    AudioEngine.startAmbience();
+    Engine.start(selectedNight, onTick, onEvent);
+  }
+
+  // ---------------------------------------------------------------------------
+  // CAMERA UI
+  // ---------------------------------------------------------------------------
+  function selCam(id) {
+    Engine.setActiveCam(id);
+    ['stage','back','alcove','raft'].forEach(c => {
+      document.getElementById('ct-' + c).classList.toggle('sel', c === id);
+    });
+    AudioEngine.playCamClick();
+    renderCam(Engine.getState());
+  }
+
+  function renderCam(S) {
+    document.getElementById('cam-clock').textContent = GAME_DATA.hours[S.hour];
+    const chars = GAME_DATA.characters;
+    let icon = '—', name = '', sub = '';
+
+    if (S.activeCam === 'stage') {
+      if (S.milo === 0)         { icon = chars.milo.emoji;    name = chars.milo.name;    sub = 'At his podium'; }
+      else if (S.anthony === 0) { icon = chars.anthony.emoji; name = chars.anthony.name; sub = 'On stage'; }
+      else                      { name = 'Main Stage'; sub = 'Empty'; }
+    } else if (S.activeCam === 'back') {
+      if (S.riley === 0) { icon = chars.riley.emoji; name = chars.riley.name; sub = 'At prop station'; }
+      else               { name = 'Backstage'; sub = 'Riley is moving...'; }
+    } else if (S.activeCam === 'alcove') {
+      if (S.gail === 0) { icon = chars.gail.emoji; name = chars.gail.name; sub = 'Fortune alcove'; }
+      else              { name = 'Fortune Alcove'; sub = 'Gail has left her post'; }
+    } else { // rafters
+      if (S.gizelle >= 1) {
+        icon = chars.gizelle.emoji; name = chars.gizelle.name;
+        sub = S.gizelle === 3 ? 'At window — cam keeping her back!' : 'In the rafters';
+      } else { name = 'Rafters'; sub = 'All clear'; }
+    }
+
+    document.getElementById('cam-body').innerHTML =
+      `<div style="font-size:36px;margin-bottom:6px;opacity:${icon==='—'?.25:1}">${icon}</div>` +
+      `<div style="font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;` +
+        `color:${S.activeCam==='raft'&&S.gizelle===3?'var(--gold)':'var(--text)'};">${name}</div>` +
+      `<div style="font-family:'Special Elite',serif;font-size:10px;color:var(--text3);margin-top:3px;">${sub}</div>`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // RENDER TICK — called every engine tick
+  // ---------------------------------------------------------------------------
+  function onTick(S) {
+    renderHUD(S);
+    renderScenes(S);
+    renderPanel(S);
+    renderSidePanel(S);
+    if (S.camOpen) renderCam(S);
+  }
+
+  function renderHUD(S) {
+    const p = Math.round(S.power);
+    document.getElementById('power-pct').textContent = p + '%';
+    document.getElementById('power-fill').style.width = p + '%';
+    document.getElementById('power-fill').style.background =
+      p > 60 ? 'var(--gold)' : p > 30 ? 'var(--warn)' : 'var(--danger)';
+    document.getElementById('clock').textContent = GAME_DATA.hours[Math.min(S.hour, 6)];
+  }
+
+  function renderScenes(S) {
+    const chars = GAME_DATA.characters;
+    // Front scene tokens
+    tok('tok-milo-stage',  chars.milo.emoji,    S.milo === 0);
+    tok('tok-ant-stage',   chars.anthony.emoji,  S.anthony === 0);
+    tok('tok-giz-raft',    chars.gizelle.emoji,  S.gizelle >= 1 && S.gizelle < 3, 0.6);
+    tok('tok-giz-win',     chars.gizelle.emoji,  S.gizelle === 3);
+    tok('tok-milo-win',    chars.milo.emoji,     S.milo === 4);
+
+    // Hall scene
+    const rc = S.riley === 3, ac = S.anthony === 3;
+    const rm = S.riley === 2, am = S.anthony === 2;
+    const rf = S.riley === 1, af = S.anthony === 1;
+    let showWho = null, showLevel = 0;
+    if (rc || ac) { showWho = rc ? 'riley' : 'anthony'; showLevel = 3; }
+    else if (rm || am) { showWho = rm ? 'riley' : 'anthony'; showLevel = 2; }
+    else if (rf || af) { showWho = rf ? 'riley' : 'anthony'; showLevel = 1; }
+
+    const ha  = document.getElementById('hall-anim');
+    const df  = document.getElementById('door-fill');
+    const dl  = document.getElementById('door-label');
+    df.style.opacity = S.doorHeld ? '1' : '0';
+    dl.textContent = S.doorHeld ? '— door held shut —' : showLevel === 3 ? '— at the door —' : '— door open —';
+    dl.style.color = S.doorHeld ? '#6aaa50' : showLevel === 3 ? 'var(--danger)' : 'var(--text4)';
+
+    if (showLevel === 3) {
+      ha.style.cssText = 'position:absolute;bottom:58px;left:50%;transform:translateX(-50%);opacity:1;transition:all .4s;display:flex;flex-direction:column;align-items:center;z-index:3;';
+      ha.innerHTML = `<span style="font-size:40px;">${chars[showWho].emoji}</span><span style="font-family:'Special Elite',serif;font-size:9px;color:var(--danger);margin-top:3px;letter-spacing:1px;">right there</span>`;
+    } else if (showLevel === 2) {
+      ha.style.cssText = 'position:absolute;bottom:75px;left:50%;transform:translateX(-50%);opacity:0.7;transition:all .4s;display:flex;align-items:center;z-index:3;';
+      ha.innerHTML = `<span style="font-size:26px;">${chars[showWho].emoji}</span>`;
+    } else if (showLevel === 1) {
+      ha.style.cssText = 'position:absolute;bottom:93px;left:50%;transform:translateX(-50%);opacity:0.35;transition:all .4s;display:flex;align-items:center;z-index:3;';
+      ha.innerHTML = `<span style="font-size:16px;">${chars[showWho].emoji}</span>`;
+    } else {
+      ha.innerHTML = ''; ha.style.opacity = '0';
+    }
+
+    // Hatch scene
+    const hthreat = S.gail === 3;
+    const hd = document.getElementById('hatch-door');
+    const hs = document.getElementById('hatch-status');
+    const hg = document.getElementById('hatch-gail');
+    const hi = document.getElementById('hatch-held-label');
+    if (hthreat) {
+      hg.innerHTML = `<span style="font-size:28px;">${chars.gail.emoji}</span>`;
+      hg.style.opacity = '1';
+      hs.textContent = S.hatchHeld ? '' : 'FORCING OPEN!';
+      hs.style.color = 'var(--danger)';
+      hi.style.opacity = S.hatchHeld ? '1' : '0';
+      hd.style.borderColor = S.hatchHeld ? '#4a8040' : 'var(--danger)';
+      hd.style.boxShadow = S.hatchHeld ? '0 0 14px rgba(74,128,64,.5)' : '0 0 14px rgba(192,56,26,.5)';
+      hd.style.animation = S.hatchHeld ? 'none' : 'hatch-shake .13s infinite';
+    } else {
+      hg.innerHTML = ''; hg.style.opacity = '0';
+      hs.textContent = 'closed'; hs.style.color = 'var(--text4)';
+      hi.style.opacity = '0';
+      hd.style.borderColor = 'var(--border)';
+      hd.style.boxShadow = 'none'; hd.style.animation = 'none';
+    }
+  }
+
+  function pval(id, txt, dcls) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = txt + `<span class="pdot ${dcls}"></span>`;
+  }
+
+  function renderPanel(S) {
+    const p = Math.round(S.power);
+    pval('mp-pwr',  p + '%',           p > 60 ? 'd-on' : p > 30 ? 'd-warn' : 'd-danger');
+    pval('mp-lgt',  S.lightOn ? 'ON' : 'OFF',          S.lightOn ? 'd-on' : 'd-off');
+    pval('mp-door', S.doorHeld ? 'Held shut' : 'Open', S.doorHeld ? 'd-on' : 'd-off');
+    const hallT = S.riley === 3 || S.anthony === 3;
+    const hallM = S.riley === 2 || S.anthony === 2;
+    pval('mp-hall', hallT ? 'AT DOOR!' : hallM ? 'Moving' : 'Clear', hallT ? 'd-danger' : hallM ? 'd-warn' : 'd-off');
+    const htT = S.gail === 3;
+    pval('mp-htch', htT ? (S.hatchHeld ? 'Held' : 'FORCING!') : 'Closed', htT ? (S.hatchHeld ? 'd-on' : 'd-danger') : 'd-off');
+    pval('mp-raft', S.gizelle === 3 ? 'AT WINDOW!' : S.gizelle >= 1 ? 'Moving' : 'Clear', S.gizelle === 3 ? 'd-danger' : S.gizelle >= 1 ? 'd-warn' : 'd-off');
+  }
+
+  function locClass(v, max) {
+    return v >= max ? 'loc-close' : v >= max - 1 ? 'loc-move' : 'loc-safe';
+  }
+
+  function renderSidePanel(S) {
+    const map = {
+      milo:    { v: S.milo,    max: 4, locs: GAME_DATA.characters.milo.locations },
+      riley:   { v: S.riley,   max: 3, locs: GAME_DATA.characters.riley.locations },
+      gail:    { v: S.gail,    max: 3, locs: GAME_DATA.characters.gail.locations },
+      gizelle: { v: S.gizelle, max: 3, locs: GAME_DATA.characters.gizelle.locations },
+      anthony: { v: S.anthony, max: 3, locs: GAME_DATA.characters.anthony.locations }
+    };
+    Object.entries(map).forEach(([who, { v, max, locs }]) => {
+      const el = document.getElementById('sp-' + who);
+      if (!el) return;
+      el.textContent = locs[Math.min(v, locs.length - 1)] || '???';
+      el.className = 'anim-loc ' + locClass(v, max);
+    });
+  }
+
+  // helper: set a token element's emoji and opacity
+  function tok(id, emoji, visible, visOpacity = 1) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = emoji;
+    el.style.opacity = visible ? String(visOpacity) : '0';
+  }
+
+  // ---------------------------------------------------------------------------
+  // ENGINE EVENTS
+  // ---------------------------------------------------------------------------
+  function onEvent(name, data) {
+    const S = Engine.getState();
+
+    switch (name) {
+
+      case 'dirChange': {
+        DIRS.forEach((id, i) => {
+          const el = document.getElementById(id);
+          if (el) el.classList.toggle('active', i === data.dir);
+        });
+        document.getElementById('view-dir').textContent = DIR_NAMES[data.dir];
+        AudioEngine.playCamClick();
+        break;
+      }
+
+      case 'camToggle': {
+        const ov = document.getElementById('cam-overlay');
+        ov.classList.toggle('open', data.open);
+        document.getElementById('btn-cam').classList.toggle('on', data.open);
+        if (data.open) { AudioEngine.playCamClick(); renderCam(S); }
+        break;
+      }
+
+      case 'camChange': {
+        renderCam(S);
+        break;
+      }
+
+      case 'lightToggle': {
+        document.getElementById('btn-light').classList.toggle('on', data.on);
+        setLog(data.on ? "Booth light on — you're the brightest thing in the building." : "Booth light off.", '');
+        break;
+      }
+
+      case 'doorChange': {
+        document.getElementById('btn-door').classList.toggle('on', data.held);
+        if (data.held && !data.wasHeld) AudioEngine.playDoorThud();
+        break;
+      }
+
+      case 'hatchChange': {
+        document.getElementById('btn-hatch').classList.toggle('on', data.held);
+        break;
+      }
+
+      case 'animMove': {
+        // Could trigger per-character sounds here in the future
+        break;
+      }
+
+      case 'animRetreat': {
+        break;
+      }
+
+      case 'hourChange': {
+        break;
+      }
+
+      case 'powerOut': {
+        document.getElementById('btn-light').classList.remove('on');
+        break;
+      }
+
+      case 'log': {
+        setLog(data.msg, data.cls || '');
+        break;
+      }
+
+      case 'jumpscare': {
+        doJumpscare(data.who);
+        break;
+      }
+
+      case 'victory': {
+        doVictory();
+        break;
+      }
+    }
+  }
+
+  function setLog(msg, cls) {
+    const el = document.getElementById('log-msg');
+    el.textContent = msg;
+    el.className = cls || '';
+  }
+
+  // ---------------------------------------------------------------------------
+  // JUMPSCARE
+  // ---------------------------------------------------------------------------
+  function doJumpscare(who) {
+    AudioEngine.playJumpscare();
+    const char = GAME_DATA.characters[who];
+    const lines = char.killLines;
+    const line = lines[Math.floor(Math.random() * lines.length)] || '';
+    document.getElementById('js-icon').textContent = char.emoji;
+    document.getElementById('js-line').textContent = line ? `"${line}"` : '';
+    document.getElementById('js-overlay').classList.add('active');
+    setTimeout(() => {
+      document.getElementById('js-overlay').classList.remove('active');
+      doEndScreen(false, who);
+    }, 2600);
+  }
+
+  // ---------------------------------------------------------------------------
+  // END SCREEN
+  // ---------------------------------------------------------------------------
+  function doEndScreen(win, who) {
+    const S = Engine.getState();
+    const e = document.getElementById('end-screen');
+    e.classList.add('active');
+    if (win) {
+      e.innerHTML = `
+        <div class="end-sign">
+          <div class="end-title" style="color:var(--bulb);">6 A.M.</div>
+          <div class="end-sub">You survived Night ${S.night}.</div>
+          <div class="end-note">The day shift arrives. Milo's hat is tilted suspiciously.</div>
+        </div>
+        <button class="end-btn" onclick="UI.retryNight()">Play Again</button>
+        <button class="end-btn" onclick="UI.backToTitle()">Return to Lobby</button>`;
+    } else {
+      const char = GAME_DATA.characters[who];
+      e.innerHTML = `
+        <div class="end-sign">
+          <div class="end-title" style="color:var(--red-warm);">Game Over</div>
+          <div class="end-sub">${char.name} got you at ${GAME_DATA.hours[S.hour]}.</div>
+          <div class="end-note">${S.hour < 3 ? 'Long night ahead...' : S.hour < 5 ? 'So close.' : 'One more hour!'}</div>
+        </div>
+        <button class="end-btn" onclick="UI.retryNight()">Try Again</button>
+        <button class="end-btn" onclick="UI.backToTitle()">Return to Lobby</button>`;
+    }
+  }
+
+  function doVictory() { doEndScreen(true, null); }
+
+  // ---------------------------------------------------------------------------
+  // RETRY / TITLE
+  // ---------------------------------------------------------------------------
+  function retryNight() { startGame(); }
+
+  function backToTitle() {
+    Engine.stop();
+    AudioEngine.stopAmbience();
+    document.getElementById('game').classList.remove('active');
+    document.getElementById('title-screen').style.display = 'flex';
+    document.getElementById('end-screen').classList.remove('active');
+    document.getElementById('js-overlay').classList.remove('active');
+    document.getElementById('cam-overlay').classList.remove('open');
+    keysHeld.d = false; keysHeld.h = false;
+  }
+
+  // ---------------------------------------------------------------------------
+  // KEYBOARD
+  // ---------------------------------------------------------------------------
+  function initKeyboard() {
+    document.addEventListener('keydown', e => {
+      const S = Engine.getState();
+      if (!S.alive || S.won) return;
+      const k = e.key.toLowerCase();
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); Engine.turnLeft(); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); Engine.turnRight(); }
+      if (k === 'c') { e.preventDefault(); Engine.toggleCam(); }
+      if (k === 'l') { e.preventDefault(); Engine.toggleLight(); }
+      if (k === 'd' && !keysHeld.d) { e.preventDefault(); keysHeld.d = true;  Engine.setDoorHeld(true); }
+      if (k === 'h' && !keysHeld.h) { e.preventDefault(); keysHeld.h = true;  Engine.setHatchHeld(true); }
+      if (k === '1' && S.camOpen) selCam('stage');
+      if (k === '2' && S.camOpen) selCam('back');
+      if (k === '3' && S.camOpen) selCam('alcove');
+      if (k === '4' && S.camOpen) selCam('raft');
+    });
+    document.addEventListener('keyup', e => {
+      const k = e.key.toLowerCase();
+      if (k === 'd' && keysHeld.d) { keysHeld.d = false; Engine.setDoorHeld(false); }
+      if (k === 'h' && keysHeld.h) { keysHeld.h = false; Engine.setHatchHeld(false); }
+    });
+
+    // Door button — pointer events only (no navigation side effects)
+    const doorBtn = document.getElementById('btn-door');
+    doorBtn.addEventListener('pointerdown',  e => { e.preventDefault(); Engine.setDoorHeld(true); });
+    doorBtn.addEventListener('pointerup',    e => { e.preventDefault(); Engine.setDoorHeld(false); });
+    doorBtn.addEventListener('pointerleave', e => { e.preventDefault(); Engine.setDoorHeld(false); });
+    doorBtn.addEventListener('pointercancel',e => { e.preventDefault(); Engine.setDoorHeld(false); });
+
+    // Hatch button
+    const hatchBtn = document.getElementById('btn-hatch');
+    hatchBtn.addEventListener('pointerdown',  e => { e.preventDefault(); Engine.setHatchHeld(true); });
+    hatchBtn.addEventListener('pointerup',    e => { e.preventDefault(); Engine.setHatchHeld(false); });
+    hatchBtn.addEventListener('pointerleave', e => { e.preventDefault(); Engine.setHatchHeld(false); });
+    hatchBtn.addEventListener('pointercancel',e => { e.preventDefault(); Engine.setHatchHeld(false); });
+  }
+
+  // ---------------------------------------------------------------------------
+  // PUBLIC API
+  // ---------------------------------------------------------------------------
+  return { selectNight, startGame, selCam, retryNight, backToTitle, initKeyboard };
+
+})();
+
+// Boot
+UI.initKeyboard();
+</script>
+
+</body>
+</html>
