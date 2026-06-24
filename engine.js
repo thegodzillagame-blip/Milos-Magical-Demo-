@@ -199,16 +199,25 @@ const Engine = (() => {
       }
     }
 
-    // --- GIZELLE (rafters camera) ---
+    // --- GIZELLE (rafters camera + booth light) ---
+    // Light scares her — she won't advance while it's on, retreats if already close
     if (state.gizelle < 3) {
-      tryMove('gizelle', 4, base * 0.72);
+      if (!state.lightOn) {
+        tryMove('gizelle', 4, base * 0.72);
+      }
     } else if (state.gizelle === 3) {
-      // Watching rafters cam sends her back
-      if (state.camOpen && state.activeCam === 'raft') {
+      // Two ways to send her back: light OR watching the rafters cam
+      if (state.lightOn) {
+        if (Math.random() < 0.35) {
+          state.gizelle = 1;
+          emit('animRetreat', { who: 'gizelle' });
+          emit('log', { msg: "Gizelle retreated — she hates the light!", cls: '' });
+        }
+      } else if (state.camOpen && state.activeCam === 'raft') {
         if (Math.random() < cfg.gizelleRetreatchance) {
           state.gizelle = 1;
           emit('animRetreat', { who: 'gizelle' });
-          emit('log', { msg: "Gizelle retreated — you spotted her on the rafters cam!", cls: '' });
+          emit('log', { msg: "Gizelle retreated — spotted on the rafters cam!", cls: '' });
         }
       }
     }
@@ -256,8 +265,8 @@ const Engine = (() => {
       return true;
     }
 
-    // Gizelle at window
-    if (state.gizelle === 3 && !(state.camOpen && state.activeCam === 'raft')) {
+    // Gizelle at window — blocked by light OR rafters cam
+    if (state.gizelle === 3 && !state.lightOn && !(state.camOpen && state.activeCam === 'raft')) {
       state.gizelle = 99;
       emit('log', { msg: "Gizelle dropped from the rafters!", cls: 'danger' });
       kill('gizelle', 420);
